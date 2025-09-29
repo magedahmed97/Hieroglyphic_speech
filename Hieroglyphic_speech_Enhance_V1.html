@@ -1,0 +1,1109 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>مترجم الصوت إلى الهيروغليفية</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Papyrus', 'Times New Roman', serif;
+      background: linear-gradient(135deg, #8B4513 0%, #D2691E 30%, #CD853F 70%, #F4A460 100%);
+      min-height: 100vh;
+      padding: 20px;
+      direction: rtl;
+      position: relative;
+      overflow-x: hidden;
+    }
+
+    body::before {
+      content: '';
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-image:
+        radial-gradient(circle at 20% 80%, rgba(218, 165, 32, 0.1) 0%, transparent 50%),
+        radial-gradient(circle at 80% 20%, rgba(184, 134, 11, 0.1) 0%, transparent 50%);
+      pointer-events: none;
+      z-index: -1;
+    }
+
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+      background: white;
+      border-radius: 15px;
+      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+      overflow: hidden;
+    }
+
+    .header {
+      background: linear-gradient(45deg, #B8860B, #DAA520, #FFD700);
+      padding: 25px 20px;
+      text-align: center;
+      color: #8B4513;
+      position: relative;
+      border-bottom: 3px solid #8B4513;
+    }
+
+    .header::before {
+      content: '𓋹 𓊪 𓏏 𓊖 𓋹';
+      position: absolute;
+      top: 10px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 1.5rem;
+      color: #8B4513;
+      opacity: 0.7;
+    }
+
+    .header::after {
+      content: '𓋹 𓊪 𓏏 𓊖 𓋹';
+      position: absolute;
+      bottom: 10px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 1.5rem;
+      color: #8B4513;
+      opacity: 0.7;
+    }
+
+    .header h1 {
+      font-size: 1.8rem;
+      margin-bottom: 8px;
+      text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
+    }
+
+    .header p {
+      font-size: 0.9rem;
+      opacity: 0.8;
+    }
+
+    .main-content {
+      padding: 0;
+      display: flex;
+      min-height: 500px;
+    }
+
+    .input-section {
+      flex: 1;
+      background: linear-gradient(135deg, #F5DEB3 0%, #DEB887 100%);
+      padding: 20px;
+      border-left: 3px solid #8B4513;
+      position: relative;
+    }
+
+    .input-section::before {
+      content: '𓂀 𓈖 𓊪 𓅱 𓏏';
+      position: absolute;
+      top: 15px;
+      right: 15px;
+      font-size: 1.2rem;
+      color: #8B4513;
+      opacity: 0.3;
+    }
+
+    .output-section {
+      flex: 1;
+      background: linear-gradient(135deg, #FAEBD7 0%, #F5DEB3 100%);
+      padding: 20px;
+      position: relative;
+    }
+
+    .output-section::before {
+      content: '𓊹 𓊪 𓏏 𓊖 𓊹';
+      position: absolute;
+      top: 15px;
+      left: 15px;
+      font-size: 1.2rem;
+      color: #8B4513;
+      opacity: 0.3;
+    }
+
+    .section-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 20px;
+      padding-bottom: 15px;
+      border-bottom: 2px solid #e9ecef;
+    }
+
+    .section-title {
+      font-size: 1.4rem;
+      font-weight: bold;
+      color: #2c3e50;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .voice-controls {
+      display: flex;
+      gap: 10px;
+    }
+
+    .mic-btn {
+      background: linear-gradient(45deg, #DAA520, #B8860B);
+      color: #8B4513;
+      border: 2px solid #8B4513;
+      padding: 12px 15px;
+      border-radius: 50%;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      font-size: 1.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 50px;
+      height: 50px;
+      box-shadow: 0 3px 8px rgba(218, 165, 32, 0.4);
+      position: relative;
+    }
+
+    .mic-btn::before {
+      content: '𓌃';
+      font-size: 2rem;
+    }
+
+    .mic-btn:hover {
+      background: linear-gradient(45deg, #FFD700, #DAA520);
+      transform: translateY(-3px) scale(1.05);
+      box-shadow: 0 8px 20px rgba(218, 165, 32, 0.6);
+    }
+
+    .mic-btn.recording {
+      background: #dc3545;
+      animation: pulse 1.5s infinite;
+    }
+
+    .clear-btn {
+      background: linear-gradient(45deg, #8B4513, #A0522D);
+      color: #F5DEB3;
+      border: 2px solid #654321;
+      padding: 10px 12px;
+      border-radius: 50%;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      font-size: 1.2rem;
+      width: 40px;
+      height: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .clear-btn::before {
+      content: '𓊃';
+      font-size: 1.4rem;
+    }
+
+    .clear-btn:hover {
+      background: linear-gradient(45deg, #A0522D, #8B4513);
+      transform: translateY(-2px) scale(1.05);
+    }
+
+    .stop-btn {
+      background: linear-gradient(45deg, #CD853F, #D2691E);
+      color: #8B4513;
+      border: 2px solid #8B4513;
+      padding: 10px 12px;
+      border-radius: 50%;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      font-size: 1.2rem;
+      width: 40px;
+      height: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .stop-btn::before {
+      content: '𓊖';
+      font-size: 1.4rem;
+    }
+
+    .stop-btn:hover {
+      background: linear-gradient(45deg, #D2691E, #CD853F);
+      transform: translateY(-2px) scale(1.05);
+    }
+
+    @keyframes pulse {
+      0% {
+        transform: scale(1);
+      }
+
+      50% {
+        transform: scale(1.05);
+      }
+
+      100% {
+        transform: scale(1);
+      }
+    }
+
+    .text-area {
+      width: 100%;
+      min-height: 200px;
+      border: 2px solid #8B4513;
+      border-radius: 12px;
+      padding: 15px;
+      font-size: 1.1rem;
+      line-height: 1.6;
+      resize: vertical;
+      background: linear-gradient(135deg, #FAEBD7 0%, #F5DEB3 100%);
+      color: #8B4513;
+      direction: rtl;
+      text-align: right;
+      font-family: 'Papyrus', 'Times New Roman', serif;
+      box-shadow: inset 0 1px 4px rgba(139, 69, 19, 0.2);
+    }
+
+    .text-area:focus {
+      outline: none;
+      border-color: #DAA520;
+      box-shadow: 0 0 0 3px rgba(218, 165, 32, 0.3), inset 0 2px 8px rgba(139, 69, 19, 0.2);
+    }
+
+    .output-text {
+      width: 100%;
+      min-height: 200px;
+      border: 2px solid #8B4513;
+      border-radius: 12px;
+      padding: 15px;
+      font-size: 1.6rem;
+      line-height: 1.6;
+      background: linear-gradient(135deg, #F5DEB3 0%, #DEB887 100%);
+      color: #8B4513;
+      font-family: 'Papyrus', 'Times New Roman', serif;
+      text-align: center;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: inset 0 1px 4px rgba(139, 69, 19, 0.2);
+      position: relative;
+    }
+
+    .output-text::before {
+      content: '𓋹';
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      font-size: 1.5rem;
+      opacity: 0.3;
+    }
+
+    .output-text::after {
+      content: '𓋹';
+      position: absolute;
+      bottom: 10px;
+      right: 10px;
+      font-size: 1.5rem;
+      opacity: 0.3;
+    }
+
+    .audio-controls {
+      margin-top: 20px;
+      display: flex;
+      gap: 10px;
+    }
+
+    .play-btn {
+      background: linear-gradient(45deg, #DAA520, #FFD700);
+      color: #8B4513;
+      border: 2px solid #8B4513;
+      padding: 12px 18px;
+      border-radius: 20px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      font-size: 0.9rem;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      box-shadow: 0 3px 8px rgba(218, 165, 32, 0.4);
+      position: relative;
+      font-weight: bold;
+    }
+
+    .play-btn::before {
+      content: '𓌅';
+      font-size: 1.5rem;
+    }
+
+    .play-btn:hover {
+      background: linear-gradient(45deg, #FFD700, #FFA500);
+      transform: translateY(-3px);
+      box-shadow: 0 8px 20px rgba(218, 165, 32, 0.6);
+    }
+
+    .play-btn:disabled {
+      background: linear-gradient(45deg, #A0522D, #8B4513);
+      color: #F5DEB3;
+      cursor: not-allowed;
+      transform: none;
+      opacity: 0.6;
+    }
+
+    .status {
+      margin: 15px 0;
+      padding: 12px;
+      border-radius: 8px;
+      text-align: center;
+      font-weight: 500;
+      font-size: 0.9rem;
+    }
+
+    .status.listening {
+      background: #d4edda;
+      color: #155724;
+      border: 1px solid #c3e6cb;
+    }
+
+    .status.processing {
+      background: #fff3cd;
+      color: #856404;
+      border: 1px solid #ffeaa7;
+    }
+
+    @media (max-width: 768px) {
+      .main-content {
+        flex-direction: column;
+      }
+
+      .input-section,
+      .output-section {
+        border-left: none;
+        border-top: 1px solid #e9ecef;
+      }
+
+      .header h1 {
+        font-size: 2rem;
+      }
+
+      .section-header {
+        flex-direction: column;
+        gap: 15px;
+        align-items: stretch;
+      }
+
+      .voice-controls {
+        justify-content: center;
+      }
+
+      .text-area,
+      .output-text {
+        min-height: 200px;
+      }
+    }
+
+    .demo-notice {
+      background: #e3f2fd;
+      border: 2px solid #2196f3;
+      border-radius: 10px;
+      padding: 20px;
+      margin-bottom: 30px;
+      text-align: center;
+      color: #1565c0;
+    }
+
+    .demo-notice h4 {
+      margin-bottom: 10px;
+      font-size: 1.2rem;
+    }
+
+    .voice-selection {
+      margin-bottom: 15px;
+      padding: 15px;
+      background: linear-gradient(135deg, #DEB887 0%, #D2B48C 100%);
+      border-radius: 12px;
+      border: 2px solid #8B4513;
+      position: relative;
+    }
+
+    .voice-selection::before {
+      content: '𓊹 𓂀 𓊹';
+      position: absolute;
+      top: 5px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 1rem;
+      color: #8B4513;
+      opacity: 0.5;
+    }
+
+    .voice-options {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    .voice-label {
+      font-weight: bold;
+      color: #8B4513;
+      font-size: 1.1rem;
+      font-family: 'Papyrus', serif;
+    }
+
+    .voice-btn {
+      background: linear-gradient(45deg, #CD853F, #D2691E);
+      color: #8B4513;
+      border: 2px solid #8B4513;
+      padding: 10px 15px;
+      border-radius: 15px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      font-size: 0.85rem;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      box-shadow: 0 3px 8px rgba(205, 133, 63, 0.4);
+      font-weight: bold;
+      position: relative;
+    }
+
+    .voice-btn::before {
+      font-size: 1.2rem;
+    }
+
+    .voice-btn:hover {
+      background: linear-gradient(45deg, #D2691E, #DAA520);
+      transform: translateY(-2px);
+      box-shadow: 0 6px 16px rgba(205, 133, 63, 0.6);
+    }
+
+    .voice-btn.active {
+      background: linear-gradient(45deg, #DAA520, #FFD700);
+      box-shadow: 0 6px 16px rgba(218, 165, 32, 0.6);
+    }
+
+    .voice-btn.active:hover {
+      background: linear-gradient(45deg, #FFD700, #FFA500);
+      box-shadow: 0 8px 20px rgba(218, 165, 32, 0.8);
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>𓌃 مترجم الصوت إلى الهيروغليفية 𓊹</h1>
+      <p>تحدث بالعربية واستمع للترجمة الهيروغليفية المقدسة</p>
+    </div>
+
+    <div class="main-content">
+      <!-- Input Section -->
+      <div class="input-section">
+        <div class="section-header">
+          <div class="section-title">
+            𓂀 النص العربي المقدس
+          </div>
+          <div class="voice-controls">
+            <button id="recordBtn" class="mic-btn" title="تسجيل الصوت"></button>
+            <button id="stopBtn" class="stop-btn" style="display: none;" title="إيقاف التسجيل"></button>
+            <button id="clearBtn" class="clear-btn" title="مسح النص"></button>
+          </div>
+        </div>
+
+        <div id="status" class="status" style="display: none;"></div>
+
+        <textarea id="arabicText" class="text-area"
+          placeholder="اكتب النص هنا أو استخدم الميكروفون للتسجيل..."></textarea>
+
+        <div class="audio-controls">
+          <button id="playArabicBtn" class="play-btn" disabled>
+            تشغيل النص العربي
+          </button>
+        </div>
+      </div>
+
+      <!-- Output Section -->
+      <div class="output-section">
+        <div class="section-header">
+          <div class="section-title">
+            𓊹 النص الهيروغليفي المقدس 𓋹
+          </div>
+        </div>
+
+        <div id="hieroglyphicsText" class="output-text">
+          𓈖𓏏𓇯𓂋 𓇋𓅓 𓇋𓈖𓏏𓇯𓂋...
+        </div>
+
+        <div class="voice-selection">
+          <div class="voice-options">
+            <label class="voice-label">اختر الصوت:</label>
+            <button id="maleVoiceBtn" class="voice-btn active">𓀀 صوت رجالي</button>
+            <button id="femaleVoiceBtn" class="voice-btn">𓁐 صوت نسائي</button>
+          </div>
+        </div>
+
+        <div class="audio-controls">
+          <button id="playHieroglyphicsBtn" class="play-btn" disabled>
+            تشغيل الهيروغليفية المقدسة
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Global variables for simple approach
+    let isRecording = false;
+    let currentArabicText = '';
+    let currentHieroglyphicsText = '';
+    let recognition = null;
+    let demoInterval = null;
+    let selectedVoiceType = 'male'; // Default to male voice
+
+    // Sample hieroglyphics mapping with common names
+    const hieroglyphicsMap = {
+      'مرحبا': '𓅓𓂋𓎛𓃀𓄿',
+      'السلام': '𓋴𓃭𓄿𓅓',
+      'عليكم': '𓂝𓃭𓇌𓎡𓅓',
+      'كيف': '𓎡𓇌𓆑',
+      'حالك': '𓎛𓄿𓃭𓎡',
+      'اسمي': '𓄿𓋴𓅓𓇌',
+      'أحبك': '𓄿𓎛𓃀𓎡',
+      'شكرا': '𓈙𓎡𓂋𓄿',
+      'نعم': '𓈖𓂝𓅓',
+      'لا': '𓃭𓄿',
+      'الله': '𓄿𓃭𓃭𓉔',
+      'محمد': '𓅓𓎛𓅓𓂧',
+      'عبدالرحمن': '𓂝𓃀𓂧𓄿𓃭𓂋𓎛𓅓𓈖',
+      'عبد': '𓂝𓃀𓂧',
+      'الرحمن': '𓄿𓃭𓂋𓎛𓅓𓈖',
+      'أحمد': '𓄿𓎛𓅓𓂧',
+      'علي': '𓂝𓃭𓇌',
+      'فاطمة': '𓆑𓄿𓏏𓅓𓉔',
+      'عائشة': '𓂝𓄿𓇌𓈙𓉔',
+      'خديجة': '𓐍𓂧𓇌𓊃𓉔',
+      'عمر': '𓂝𓅓𓂋',
+      'عثمان': '𓂝𓏏𓅓𓄿𓈖',
+      'مصر': '𓅓𓊃𓂋',
+      'النيل': '𓄿𓃭𓈖𓇌𓃭',
+      'الشمس': '𓄿𓃭𓈙𓅓𓋴',
+      'القمر': '𓄿𓃭𓈎𓅓𓂋',
+      'الماء': '𓄿𓃭𓅓𓄿𓄿',
+      'النار': '𓄿𓃭𓈖𓄿𓂋',
+      'الأرض': '𓄿𓃭𓄿𓂋𓊃',
+      'السماء': '𓄿𓃭𓋴𓅓𓄿𓄿'
+    };
+
+    // Initialize when page loads
+    document.addEventListener('DOMContentLoaded', function () {
+      console.log('Page loaded, setting up...');
+      setupSpeechRecognition();
+      setupEventListeners();
+    });
+
+    function setupSpeechRecognition() {
+      if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        recognition = new SpeechRecognition();
+
+        // Better Arabic recognition settings
+        recognition.lang = 'ar-SA'; // Saudi Arabic
+        recognition.continuous = false; // Don't restart automatically
+        recognition.interimResults = true;
+        recognition.maxAlternatives = 3; // Get multiple alternatives
+
+        recognition.onstart = function () {
+          console.log('🎤 Speech recognition started successfully');
+          showStatus('🎤 أتحدث الآن... قل اسمك أو أي شيء تريد', 'listening');
+          document.getElementById('arabicText').textContent = 'جاري الاستماع... تحدث الآن';
+        };
+
+        recognition.onresult = function (event) {
+          console.log('📝 Speech result received:', event);
+          let finalTranscript = '';
+          let interimTranscript = '';
+
+          for (let i = event.resultIndex; i < event.results.length; i++) {
+            const result = event.results[i];
+            const transcript = result[0].transcript.trim();
+
+            console.log(`Result ${i}: "${transcript}" (confidence: ${result[0].confidence}, final: ${result.isFinal})`);
+
+            if (result.isFinal) {
+              finalTranscript += transcript + ' ';
+            } else {
+              interimTranscript += transcript + ' ';
+            }
+          }
+
+          // Show real-time results in textarea
+          const displayText = (finalTranscript + interimTranscript).trim();
+          if (displayText) {
+            document.getElementById('arabicText').value = displayText + (interimTranscript ? ' (جاري الكتابة...)' : '');
+            console.log('📄 Displaying text:', displayText);
+          }
+
+          // Process final results
+          if (finalTranscript.trim()) {
+            console.log('✅ Processing final transcript:', finalTranscript.trim());
+            document.getElementById('arabicText').value = finalTranscript.trim();
+            processArabicText(finalTranscript.trim());
+            stopRecording(); // Stop after getting final result
+          }
+        };
+
+        recognition.onerror = function (event) {
+          console.error('❌ Speech recognition error:', event.error);
+          let errorMessage = '';
+
+          switch (event.error) {
+            case 'not-allowed':
+              errorMessage = '🚫 يرجى السماح بالوصول للميكروفون من إعدادات المتصفح';
+              break;
+            case 'no-speech':
+              errorMessage = '🔇 لم يتم سماع أي صوت - تأكد من عمل الميكروفون وتحدث بوضوح';
+              break;
+            case 'audio-capture':
+              errorMessage = '🎤 خطأ في الميكروفون - تأكد من توصيله وعمله';
+              break;
+            case 'network':
+              errorMessage = '🌐 خطأ في الاتصال - تأكد من الاتصال بالإنترنت';
+              break;
+            default:
+              errorMessage = `⚠️ خطأ في التعرف على الصوت: ${event.error}`;
+          }
+
+          showStatus(errorMessage, 'processing');
+          document.getElementById('arabicText').textContent = errorMessage;
+          stopRecording();
+        };
+
+        recognition.onend = function () {
+          console.log('🔚 Speech recognition ended');
+          if (isRecording) {
+            // Don't auto-restart, let user click again
+            stopRecording();
+          }
+        };
+
+        console.log('✅ Speech recognition setup complete');
+      } else {
+        console.log('❌ Speech recognition not supported in this browser');
+      }
+    }
+
+    function setupEventListeners() {
+      const recordBtn = document.getElementById('recordBtn');
+      const stopBtn = document.getElementById('stopBtn');
+      const clearBtn = document.getElementById('clearBtn');
+      const playArabicBtn = document.getElementById('playArabicBtn');
+      const playHieroglyphicsBtn = document.getElementById('playHieroglyphicsBtn');
+      const arabicText = document.getElementById('arabicText');
+      const maleVoiceBtn = document.getElementById('maleVoiceBtn');
+      const femaleVoiceBtn = document.getElementById('femaleVoiceBtn');
+
+      // Record button
+      recordBtn.onclick = function () {
+        console.log('Record button clicked!');
+        toggleRecording();
+      };
+
+      // Stop button
+      stopBtn.onclick = function () {
+        console.log('Stop button clicked!');
+        stopRecording();
+      };
+
+      // Clear button
+      clearBtn.onclick = function () {
+        clearAll();
+      };
+
+      // Play buttons
+      playArabicBtn.onclick = function () {
+        playArabicText();
+      };
+
+      playHieroglyphicsBtn.onclick = function () {
+        playHieroglyphicsText();
+      };
+
+      // Voice selection buttons
+      maleVoiceBtn.onclick = function () {
+        selectedVoiceType = 'male';
+        maleVoiceBtn.classList.add('active');
+        femaleVoiceBtn.classList.remove('active');
+      };
+
+      femaleVoiceBtn.onclick = function () {
+        selectedVoiceType = 'female';
+        femaleVoiceBtn.classList.add('active');
+        maleVoiceBtn.classList.remove('active');
+      };
+
+      // Text area input listener
+      arabicText.addEventListener('input', function () {
+        const text = this.value.trim();
+        if (text) {
+          processArabicText(text);
+        } else {
+          clearOutput();
+        }
+      });
+    }
+
+    function toggleRecording() {
+      console.log('Toggle recording - current state:', isRecording);
+      if (isRecording) {
+        stopRecording();
+      } else {
+        startRecording();
+      }
+    }
+
+    async function startRecording() {
+      console.log('Starting recording...');
+
+      isRecording = true;
+
+      const recordBtn = document.getElementById('recordBtn');
+      const stopBtn = document.getElementById('stopBtn');
+      recordBtn.style.display = 'none';
+      stopBtn.style.display = 'flex';
+
+      // Try speech recognition directly without getUserMedia check
+      if (recognition) {
+        try {
+          console.log('Attempting to start speech recognition...');
+          recognition.start();
+          showStatus('🎤 أتحدث الآن... قل شيئاً بوضوح', 'listening');
+          console.log('Speech recognition started successfully');
+        } catch (error) {
+          console.error('Recognition start failed:', error);
+
+          // If speech recognition fails, show demo immediately
+          showStatus('⚠️ التعرف على الصوت غير متاح - سيتم استخدام نص تجريبي', 'processing');
+          setTimeout(() => {
+            showFallbackDemo();
+          }, 1000);
+        }
+      } else {
+        console.log('No speech recognition support - showing demo');
+        showStatus('⚠️ متصفحك لا يدعم التعرف على الصوت - سيتم استخدام نص تجريبي', 'processing');
+        setTimeout(() => {
+          showFallbackDemo();
+        }, 1000);
+      }
+    }
+
+    function stopRecording() {
+      console.log('Stopping recording...');
+      isRecording = false;
+
+      const recordBtn = document.getElementById('recordBtn');
+      const stopBtn = document.getElementById('stopBtn');
+      recordBtn.style.display = 'flex';
+      stopBtn.style.display = 'none';
+
+      hideStatus();
+
+      if (demoInterval) {
+        clearInterval(demoInterval);
+        demoInterval = null;
+      }
+
+      if (recognition) {
+        try {
+          recognition.stop();
+        } catch (error) {
+          console.log('Recognition already stopped');
+        }
+      }
+    }
+
+    function showFallbackDemo() {
+      hideStatus();
+
+      // Show a sample text as fallback
+      const sampleText = 'اسمي عبدالرحمن';
+      document.getElementById('arabicText').value = sampleText;
+
+      // Process the text immediately
+      processArabicText(sampleText);
+      stopRecording();
+
+      // Show success message
+      setTimeout(() => {
+        showStatus('✅ تم استخدام نص تجريبي - يمكنك الآن تعديل النص أو المحاولة مرة أخرى', 'listening');
+        setTimeout(() => {
+          hideStatus();
+        }, 3000);
+      }, 500);
+    }
+
+    function simulateSpeechRecognition() {
+      showFallbackDemo();
+    }
+
+    function processArabicText(text) {
+      currentArabicText = text;
+
+      if (text.trim()) {
+        // Enable Arabic playback immediately after recording
+        document.getElementById('playArabicBtn').disabled = false;
+
+        // Separate translation process with visual feedback
+        setTimeout(() => {
+          showStatus('🔮 جاري ترجمة النص إلى الهيروغليفية المقدسة...', 'processing');
+
+          setTimeout(() => {
+            const hieroglyphics = translateToHieroglyphics(text);
+            currentHieroglyphicsText = hieroglyphics;
+            document.getElementById('hieroglyphicsText').textContent = hieroglyphics;
+
+            document.getElementById('playHieroglyphicsBtn').disabled = false;
+
+            showStatus('✨ تمت الترجمة بنجاح إلى اللغة المقدسة!', 'listening');
+            setTimeout(() => {
+              hideStatus();
+            }, 2000);
+          }, 1500);
+        }, 500);
+      }
+    }
+
+    function clearOutput() {
+      currentHieroglyphicsText = '';
+      document.getElementById('hieroglyphicsText').textContent = '𓈖𓏏𓇯𓂋 𓇋𓅓 𓇋𓈖𓏏𓇯𓂋...';
+      document.getElementById('playArabicBtn').disabled = true;
+      document.getElementById('playHieroglyphicsBtn').disabled = true;
+    }
+
+    function translateToHieroglyphics(arabicText) {
+      const words = arabicText.split(' ');
+      const hieroglyphicsWords = words.map(function (word) {
+        const cleanWord = word.replace(/[.,!?]/g, '').trim();
+
+        if (hieroglyphicsMap[cleanWord]) {
+          return hieroglyphicsMap[cleanWord];
+        }
+
+        return generateHieroglyphics(cleanWord);
+      });
+
+      return hieroglyphicsWords.join(' ');
+    }
+
+    function generateHieroglyphics(word) {
+      const hieroglyphicChars = [
+        '𓄿', '𓃀', '𓎡', '𓂧', '𓇌', '𓆑', '𓎼', '𓉔', '𓇋', '𓆓',
+        '𓎡', '𓃭', '𓅓', '𓈖', '𓊃', '𓊪', '𓈎', '𓂋', '𓋴', '𓏏',
+        '𓅱', '𓄡', '𓊃', '𓇌', '𓊃', '𓄿', '𓃀', '𓎛', '𓂝', '𓈙'
+      ];
+
+      let result = '';
+      for (let i = 0; i < word.length && i < 4; i++) {
+        const charCode = word.charCodeAt(i);
+        const index = charCode % hieroglyphicChars.length;
+        result += hieroglyphicChars[index];
+      }
+
+      return result || '𓈖𓏏𓇯𓂋';
+    }
+
+    function playArabicText() {
+      if (currentArabicText && 'speechSynthesis' in window) {
+        const utterance = new SpeechSynthesisUtterance(currentArabicText);
+        utterance.lang = 'ar-SA';
+        utterance.rate = 0.8;
+        speechSynthesis.speak(utterance);
+      } else {
+        alert('تشغيل الصوت غير متاح في متصفحك');
+      }
+    }
+
+    function playHieroglyphicsText() {
+      if (currentArabicText && 'speechSynthesis' in window) {
+        const hieroglyphicPronunciation = createHieroglyphicPronunciation(currentArabicText);
+
+        const utterance = new SpeechSynthesisUtterance(hieroglyphicPronunciation);
+
+        // Wait for voices to load
+        const voices = speechSynthesis.getVoices();
+        let selectedVoice = null;
+
+        if (selectedVoiceType === 'female') {
+          // Look for the most natural female voices first
+          selectedVoice = voices.find(function (voice) {
+            return (voice.lang === 'en-US' || voice.lang === 'en-GB') &&
+              (voice.name.includes('Samantha') ||
+                voice.name.includes('Susan') ||
+                voice.name.includes('Allison') ||
+                voice.name.includes('Ava') ||
+                voice.name.includes('Serena') ||
+                voice.name.includes('Zoe'));
+          }) || voices.find(function (voice) {
+            // Fallback: any clear English female voice
+            return voice.lang.startsWith('en') &&
+              voice.name.toLowerCase().includes('female');
+          }) || voices.find(function (voice) {
+            // Last resort: any English voice that's not explicitly male
+            return voice.lang.startsWith('en') &&
+              !voice.name.toLowerCase().includes('male') &&
+              !voice.name.toLowerCase().includes('david') &&
+              !voice.name.toLowerCase().includes('alex');
+          });
+        } else {
+          // Look for the most natural male voices first
+          selectedVoice = voices.find(function (voice) {
+            return (voice.lang === 'en-US' || voice.lang === 'en-GB') &&
+              (voice.name.includes('Alex') ||
+                voice.name.includes('David') ||
+                voice.name.includes('Daniel') ||
+                voice.name.includes('Tom') ||
+                voice.name.includes('Oliver') ||
+                voice.name.includes('Aaron'));
+          }) || voices.find(function (voice) {
+            // Fallback: any clear English male voice
+            return voice.lang.startsWith('en') &&
+              voice.name.toLowerCase().includes('male');
+          }) || voices.find(function (voice) {
+            // Last resort: default to Alex or David if available
+            return voice.lang.startsWith('en') &&
+              (voice.name.includes('Alex') || voice.name.includes('David'));
+          });
+        }
+
+        // Final fallback to any English voice
+        if (!selectedVoice) {
+          selectedVoice = voices.find(function (voice) {
+            return voice.lang.includes('en');
+          });
+        }
+
+        if (selectedVoice) {
+          utterance.voice = selectedVoice;
+          console.log('Using voice:', selectedVoice.name, 'Type:', selectedVoiceType);
+        }
+
+        utterance.lang = 'en-US';
+        utterance.rate = 0.85;  // Much faster, more natural speed
+        utterance.pitch = selectedVoiceType === 'female' ? 1.1 : 0.8;  // More natural pitch range
+        utterance.volume = 1.0;  // Full volume for clarity
+
+        utterance.onstart = function () {
+          document.getElementById('playHieroglyphicsBtn').textContent = '🔊 جاري التشغيل...';
+        };
+
+        utterance.onend = function () {
+          document.getElementById('playHieroglyphicsBtn').textContent = '🔊 تشغيل الهيروغليفية';
+        };
+
+        // Stop any current speech before starting new one
+        speechSynthesis.cancel();
+        speechSynthesis.speak(utterance);
+      } else {
+        alert('تشغيل الصوت غير متاح في متصفحك');
+      }
+    }
+
+    function createHieroglyphicPronunciation(arabicText) {
+      const pronunciationMap = {
+        'مرحبا': 'mer-heh-bah ankh',
+        'السلام': 'as-sa-laam ra',
+        'عليكم': 'ah-lay-koom neter',
+        'كيف': 'kay-ef kheper',
+        'حالك': 'haal-ak ma-at',
+        'اسمي': 'is-mee ren',
+        'أحبك': 'oh-heb-ak mer',
+        'شكرا': 'shook-ran dua',
+        'نعم': 'na-am ankh',
+        'لا': 'laa isfet',
+        'الله': 'al-laah neter neteru',
+        'محمد': 'moo-ham-mad khnum',
+        'عبدالرحمن': 'ab-del-rah-man neter khnum',
+        'عبد': 'ab-del ankh',
+        'الرحمن': 'ar-rah-man neter',
+        'أحمد': 'ah-mad kheper',
+        'علي': 'ah-lee ra',
+        'فاطمة': 'fa-ti-mah isis',
+        'عائشة': 'aa-ee-shah neter',
+        'خديجة': 'kha-dee-jah ma-at',
+        'عمر': 'oh-mar horus',
+        'عثمان': 'oth-man ptah',
+        'مصر': 'misr kemet',
+        'النيل': 'an-neel hapi',
+        'الشمس': 'ash-shams ra aten',
+        'القمر': 'al-qamar khonsu',
+        'الماء': 'al-maa nu',
+        'النار': 'an-naar sekhmet',
+        'الأرض': 'al-ard geb',
+        'السماء': 'as-samaa nut'
+      };
+
+      const words = arabicText.split(' ');
+      const mysticalWords = words.map(function (word) {
+        const cleanWord = word.replace(/[.,!?]/g, '').trim();
+
+        if (pronunciationMap[cleanWord]) {
+          return pronunciationMap[cleanWord];
+        }
+
+        return generateMysticalPronunciation(cleanWord);
+      });
+
+      return mysticalWords.join(' . ');
+    }
+
+    function generateMysticalPronunciation(word) {
+      const mysticalSyllables = [
+        'ankh', 'ra', 'neter', 'kheper', 'ma-at', 'ren', 'ka', 'ba',
+        'atum', 'ptah', 'thoth', 'isis', 'horus', 'anubis', 'sobek',
+        'kemet', 'hapi', 'aten', 'khnum', 'sekhmet', 'geb', 'nut'
+      ];
+
+      // Use word characters to create consistent pronunciation (not random)
+      const syllableCount = Math.min(Math.max(1, Math.floor(word.length / 2)), 3);
+      let pronunciation = '';
+
+      for (let i = 0; i < syllableCount; i++) {
+        // Use character codes to ensure same word always gets same pronunciation
+        const charCode = word.charCodeAt(i % word.length);
+        const index = (charCode + i) % mysticalSyllables.length;
+        const syllable = mysticalSyllables[index];
+        pronunciation += (i > 0 ? '-' : '') + syllable;
+      }
+
+      return pronunciation;
+    }
+
+    function clearAll() {
+      currentArabicText = '';
+      currentHieroglyphicsText = '';
+      document.getElementById('arabicText').value = '';
+      document.getElementById('hieroglyphicsText').textContent = '𓈖𓏏𓇯𓂋 𓇋𓅓 𓇋𓈖𓏏𓇯𓂋...';
+      document.getElementById('playArabicBtn').disabled = true;
+      document.getElementById('playHieroglyphicsBtn').disabled = true;
+      hideStatus();
+    }
+
+    function showStatus(message, type) {
+      const status = document.getElementById('status');
+      status.textContent = message;
+      status.className = 'status ' + type;
+      status.style.display = 'block';
+    }
+
+    function hideStatus() {
+      document.getElementById('status').style.display = 'none';
+    }
+  </script>
+  <script>(function () { function c() { var b = a.contentDocument || a.contentWindow.document; if (b) { var d = b.createElement('script'); d.innerHTML = "window.__CF$cv$params={r:'986bc6f06480184e',t:'MTc1OTE1MjAxOC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);"; b.getElementsByTagName('head')[0].appendChild(d) } } if (document.body) { var a = document.createElement('iframe'); a.height = 1; a.width = 1; a.style.position = 'absolute'; a.style.top = 0; a.style.left = 0; a.style.border = 'none'; a.style.visibility = 'hidden'; document.body.appendChild(a); if ('loading' !== document.readyState) c(); else if (window.addEventListener) document.addEventListener('DOMContentLoaded', c); else { var e = document.onreadystatechange || function () { }; document.onreadystatechange = function (b) { e(b); 'loading' !== document.readyState && (document.onreadystatechange = e, c()) } } } })();</script>
+</body>
+
+</html>
